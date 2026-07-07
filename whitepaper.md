@@ -56,6 +56,16 @@ Find X9 Ultra 的相机应用向用户提供三种主要的静态拍照路径，
 
 **哈苏超清（50MP）** 是 Find X9 Ultra 的高分辨率拍摄路径。该模式令传感器以全像素原生读出方式工作，不做任何像素合并，产出约 50MP 的图像。这条路径需要比其他模式大约八倍规模的 AI 降噪模型。关键在于：50MP 的色彩渲染层与当前所选拍摄档位完全共享——若在大师模式下触发 50MP，色彩由大师引擎处理；若在普通模式下触发，色彩由普通管线处理。50MP 是分辨率路径，不是独立的色彩系统。
 
+### 1.3 逻辑传感器与 ISZ（In-Sensor Zoom）焦段
+
+在物理硬件上，后置模组虽然为四摄组合，但在底层 /odm/etc/camera/config 的管线中，OPPO 定义了 6 个独立逻辑传感器（lighthousefront 前置、lighthousemain 主摄、lighthousewide 超广角、lighthousetele 3× 长焦、lighthouseultratele 6× 超长焦、以及 lighthousemultispectral 多光谱色温传感器）。
+
+除了原生光学焦段，管线还通过 INSENSORZOOM_TRIGGER_ZOOMRANGE 常量明确了两个至关重要的 ISZ（In-Sensor Zoom）无损裁切放大焦段，它们并非简单的数码变焦，而是直接干预传感器底层读出（如触发 IZOOM 或 IZOOM_QBC 模式）：
+- **2× ISZ（主摄裁切）**：由主摄（Lens 1）在变焦达到 2.0 时触发。
+- **10× ISZ（超长焦裁切）**：由超长焦（Lens 3）在变焦达到 10.0 时触发。
+
+这两个 ISZ 焦段在管线中享有独立的降噪权重与多帧策略调控待遇，是构成完整可用焦段矩阵不可或缺的环节。
+
 ### 1.2 OPPO SimTool 引擎
 
 SimTool（Simulation Tool）实际上是 OPPO 为 Find X 系列开发的通用滤镜系统引擎（Filter System），运行于相机 HAL（硬件抽象层）之上，在 ISP 输出图像之后、JPEG 压缩编码之前执行。
